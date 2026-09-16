@@ -4,11 +4,232 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PERT Calculator</title>
+
+    <title>PERT Calculator — Free Three-Point Project Estimate Tool</title>
+    <meta
+      name="description"
+      content="Free PERT calculator: enter optimistic, realistic and pessimistic hours per task to get a three-point estimate, then add a familiarity multiplier and a risk buffer to price the project."
+    />
+    <link rel="canonical" href="https://mikakostoev.github.io/PERT-Calculator-Web/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mikakostoev.github.io/PERT-Calculator-Web/" />
+    <meta property="og:title" content="PERT Calculator — Free Three-Point Project Estimate Tool" />
+    <meta
+      property="og:description"
+      content="Estimate project hours and cost with the PERT formula (O + 4R + P) / 6, familiarity multipliers and a risk buffer. Free, no sign-up, runs in your browser."
+    />
+    <meta property="og:image" content="https://mikakostoev.github.io/PERT-Calculator-Web/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "https://mikakostoev.github.io/PERT-Calculator-Web/#app",
+            "name": "PERT Calculator",
+            "url": "https://mikakostoev.github.io/PERT-Calculator-Web/",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Any modern web browser",
+            "description": "Free PERT calculator for three-point project estimates with familiarity multipliers and a risk buffer.",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "author": {
+              "@type": "Person",
+              "name": "Mikail Kostoev",
+              "url": "https://github.com/mikakostoev"
+            },
+            "sameAs": ["https://github.com/mikakostoev/PERT-Calculator-Web"]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://mikakostoev.github.io/PERT-Calculator-Web/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is a PERT estimate?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "A PERT estimate is a weighted three-point estimate. You give an optimistic, a realistic and a pessimistic duration for a task, and the PERT formula weights the realistic value four times as heavily as the other two: (optimistic + 4 × realistic + pessimistic) / 6."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is the PERT formula calculated?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "PERT = (optimistic + 4 × realistic + pessimistic) / 6. For a task estimated at 4, 8 and 20 hours the PERT estimate is (4 + 32 + 20) / 6 = 9.3 hours."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What do the familiarity modes do?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Each task is multiplied by how well you know the work: FAMILIAR × 1.0, MODERATE × 1.3, FIRST TIME × 1.7. Unfamiliar work takes longer, so the multiplier raises its estimate."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How much risk buffer should I add to an estimate?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The buffer is a percentage added to the total after the familiarity multipliers. The calculator defaults to 30%, a common allowance for work with normal uncertainty; raise it for unclear requirements and lower it for repeat work."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      .page-content {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 56px 24px 72px;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+        color: #2d2f2e;
+        line-height: 1.6;
+      }
+      .page-content h1 {
+        font-size: 30px;
+        line-height: 1.2;
+        letter-spacing: -0.8px;
+        margin: 0 0 12px;
+      }
+      .page-content h2 {
+        font-size: 20px;
+        margin: 36px 0 8px;
+      }
+      .page-content h3 {
+        font-size: 16px;
+        margin: 22px 0 4px;
+      }
+      .page-content p,
+      .page-content li {
+        font-size: 15px;
+      }
+      .page-content table {
+        border-collapse: collapse;
+        margin: 12px 0;
+      }
+      .page-content th,
+      .page-content td {
+        border: 1px solid rgba(45, 47, 46, 0.15);
+        padding: 6px 14px;
+        text-align: left;
+        font-size: 15px;
+      }
+      .page-content code {
+        background: #ececeb;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 14px;
+      }
+      .page-content a {
+        color: #2e70a6;
+      }
+      .page-content footer {
+        margin-top: 40px;
+        font-size: 14px;
+        color: #767776;
+      }
+    </style>
   </head>
 
   <body>
     <div id="root"></div>
+
+    <div class="page-content">
+      <h1>PERT Calculator — three-point project estimates</h1>
+      <p>
+        This free PERT calculator turns optimistic, realistic and pessimistic hour ranges into a
+        single project estimate, adjusts each task for how familiar the work is, adds a risk buffer
+        and multiplies by your hourly rate. It runs entirely in your browser — no sign-up, no data
+        leaves your machine.
+      </p>
+
+      <h2 id="what-is-pert">What is a PERT estimate?</h2>
+      <p>
+        A PERT estimate is a weighted three-point estimate. You give three durations for a task —
+        optimistic, realistic and pessimistic — and the realistic value is weighted four times as
+        heavily as the other two:
+      </p>
+      <p><code>PERT = (optimistic + 4 × realistic + pessimistic) / 6</code></p>
+      <p>
+        For a task estimated at 4, 8 and 20 hours, the PERT estimate is (4 + 32 + 20) / 6 = 9.3
+        hours. The technique comes from the Program Evaluation and Review Technique developed for
+        the US Navy's Polaris programme in 1958, and it is still the standard way to keep a single
+        pessimistic outlier from dominating a plan.
+      </p>
+
+      <h2>What do the familiarity modes do?</h2>
+      <p>Each task is multiplied by how well you know the work:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Familiarity mode</th>
+            <th>Multiplier</th>
+            <th>Use it when</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>FAMILIAR</td>
+            <td>× 1.0</td>
+            <td>You have shipped this exact kind of work before</td>
+          </tr>
+          <tr>
+            <td>MODERATE</td>
+            <td>× 1.3</td>
+            <td>You know the tools but not this particular problem</td>
+          </tr>
+          <tr>
+            <td>FIRST TIME</td>
+            <td>× 1.7</td>
+            <td>New stack, new domain, or unknown integration</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>How much risk buffer should I add?</h2>
+      <p>
+        The buffer is a percentage added to the total after the familiarity multipliers, and it
+        defaults to 30%. Raise it when requirements are still vague or a third party is involved;
+        lower it for repeat work you have delivered several times.
+      </p>
+
+      <h2>How to use the calculator</h2>
+      <ol>
+        <li>Set your hourly rate and the risk buffer percentage.</li>
+        <li>Add a task and name it.</li>
+        <li>Enter optimistic, realistic and pessimistic hours for that task.</li>
+        <li>Tap the familiarity label to cycle between FAMILIAR, MODERATE and FIRST TIME.</li>
+        <li>Read the total estimate and buffered hours at the top of the page.</li>
+      </ol>
+
+      <h2>How the total is calculated</h2>
+      <p>
+        Every task is reduced to its PERT hours, multiplied by its familiarity factor and summed.
+        The risk buffer is then applied to that sum, and the buffered hours are multiplied by the
+        hourly rate to produce the cost estimate shown as the current estimate.
+      </p>
+
+      <footer>
+        <p>
+          Built by <a href="https://github.com/mikakostoev">Mikail Kostoev</a>. Source code and
+          issues:
+          <a href="https://github.com/mikakostoev/PERT-Calculator-Web">PERT-Calculator-Web on GitHub</a>.
+          A desktop version for macOS is available as
+          <a href="https://github.com/mikakostoev/PERT-Calculator">PERT-Calculator</a>.
+        </p>
+      </footer>
+    </div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

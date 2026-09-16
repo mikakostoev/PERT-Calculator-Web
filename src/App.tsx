@@ -131,6 +131,12 @@ function App() {
             <div className="font-heading text-[24px] font-extrabold tracking-[-1.2px] text-[#2d2f2e]">
               PERT Calculator
             </div>
+            <a
+              href="#what-is-pert"
+              className="text-[12px] uppercase tracking-[1.2px] text-[#435f6d] underline decoration-[#435f6d]/30 underline-offset-4"
+            >
+              How it works
+            </a>
           </div>
         </header>
 
